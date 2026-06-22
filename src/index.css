@@ -280,6 +280,126 @@
   background: var(--color-text-muted);
 }
 
+/* ===== DARK MODE ===== */
+.dark {
+  --color-surface: #0f0f1a;
+  --color-surface-elevated: #1a1a2e;
+  --color-text-primary: #e5e7eb;
+  --color-text-secondary: #9ca3af;
+  --color-text-muted: #6b7280;
+  --color-border: #2d2d4a;
+  --color-border-light: #1f1f33;
+}
+
+.dark body {
+  background-color: var(--color-surface);
+  color: var(--color-text-primary);
+}
+
+.dark .card {
+  background: #1a1a2e;
+  border-color: var(--color-border);
+}
+
+.dark .card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.dark .card-elevated {
+  background: #1a1a2e;
+}
+
+.dark .btn-secondary {
+  background: #1a1a2e;
+  color: #e5e7eb;
+  border-color: #2d2d4a;
+}
+
+.dark .btn-secondary:hover {
+  background: #252540;
+}
+
+.dark .input-field {
+  background: #1a1a2e;
+  border-color: #2d2d4a;
+  color: #e5e7eb;
+}
+
+.dark .input-field:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(233, 69, 96, 0.15);
+}
+
+.dark .nav-glass {
+  background: rgba(15, 15, 26, 0.95);
+  border-top-color: #2d2d4a;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #2d2d4a;
+}
+
+.dark .skeleton {
+  background: linear-gradient(90deg, #1a1a2e 25%, #2d2d4a 50%, #1a1a2e 75%);
+  background-size: 200% 100%;
+}
+
+.dark .bg-white {
+  background-color: #1a1a2e;
+}
+
+.dark .bg-gray-50 {
+  background-color: #1a1a2e;
+}
+
+.dark .bg-gray-100 {
+  background-color: #1f1f33;
+}
+
+.dark .text-gray-900 {
+  color: #e5e7eb;
+}
+
+.dark .text-gray-700 {
+  color: #d1d5db;
+}
+
+.dark .text-gray-600 {
+  color: #9ca3af;
+}
+
+.dark .text-gray-500 {
+  color: #6b7280;
+}
+
+.dark .text-gray-400 {
+  color: #4b5563;
+}
+
+.dark .border-gray-100 {
+  border-color: #2d2d4a;
+}
+
+.dark .border-gray-200 {
+  border-color: #2d2d4a;
+}
+
+.dark .divide-gray-100 > :not([hidden]) ~ :not([hidden]) {
+  border-color: #2d2d4a;
+}
+
+.dark .hover\:bg-gray-50:hover {
+  background-color: #1f1f33;
+}
+
+.dark .hover\:bg-gray-100:hover {
+  background-color: #252540;
+}
+
+.dark .hover\:bg-red-100:hover {
+  background-color: rgba(220, 38, 38, 0.15);
+}
+
 /* ===== UTILITIES ===== */
 .text-balance {
   text-wrap: balance;

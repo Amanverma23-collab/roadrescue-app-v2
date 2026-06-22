@@ -6,6 +6,7 @@ import type { Service } from '../lib/api';
 import { fetchServices } from '../lib/api';
 import { MapPin, UserCheck, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useLocationName } from '../hooks/useLocationName';
 
 export default function Home({
   phone,
@@ -17,6 +18,7 @@ export default function Home({
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { city, loading: cityLoading } = useLocationName(location?.lat ?? null, location?.lng ?? null);
 
   const fetchAll = async () => {
     try {
@@ -88,7 +90,7 @@ export default function Home({
                 <MapPin className="h-3.5 w-3.5" /> GPS Status
               </div>
               <p className="mt-1.5 text-[13px] font-semibold text-white">
-                {location ? `${location.lat.toFixed(3)}, ${location.lng.toFixed(3)}` : 'Not Set'}
+                {cityLoading ? 'Locating...' : city || (location ? `${location.lat.toFixed(3)}, ${location.lng.toFixed(3)}` : 'Not Set')}
               </p>
               <span className="mt-1 block text-[10px] text-white/50">
                 {location?.accuracy ? `Within ±${Math.round(location.accuracy)}m` : 'Enable GPS location'}

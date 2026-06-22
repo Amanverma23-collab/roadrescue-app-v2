@@ -1,14 +1,61 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import TopBar from '../components/TopBar';
 import { Bell, Moon, Globe, Shield, ChevronRight, Smartphone, MapPin, Volume2, Eye } from 'lucide-react';
 import { motion } from 'framer-motion';
 
+const LS_NOTIFICATIONS = 'rr_settings_notifications';
+const LS_LOCATION_SHARING = 'rr_settings_location_sharing';
+const LS_DARK_MODE = 'rr_settings_dark_mode';
+const LS_SOUND = 'rr_settings_sound';
+const LS_LANGUAGE = 'rr_settings_language';
+
+function loadBool(key: string, fallback: boolean): boolean {
+  const v = localStorage.getItem(key);
+  if (v === null) return fallback;
+  return v === 'true';
+}
+
 export default function Settings() {
-  const [notifications, setNotifications] = useState(true);
-  const [locationSharing, setLocationSharing] = useState(true);
-  const [darkMode, setDarkMode] = useState(false);
-  const [soundEnabled, setSoundEnabled] = useState(true);
-  const [language, setLanguage] = useState('en');
+  const [notifications, setNotifications] = useState(() => loadBool(LS_NOTIFICATIONS, true));
+  const [locationSharing, setLocationSharing] = useState(() => loadBool(LS_LOCATION_SHARING, true));
+  const [darkMode, setDarkMode] = useState(() => loadBool(LS_DARK_MODE, false));
+  const [soundEnabled, setSoundEnabled] = useState(() => loadBool(LS_SOUND, true));
+  const [language, setLanguage] = useState(() => localStorage.getItem(LS_LANGUAGE) || 'en');
+  const [saved, setSaved] = useState(false);
+
+  useEffect(() => {
+    localStorage.setItem(LS_NOTIFICATIONS, String(notifications));
+  }, [notifications]);
+
+  useEffect(() => {
+    localStorage.setItem(LS_LOCATION_SHARING, String(locationSharing));
+  }, [locationSharing]);
+
+  useEffect(() => {
+    localStorage.setItem(LS_DARK_MODE, String(darkMode));
+    if (darkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [darkMode]);
+
+  useEffect(() => {
+    localStorage.setItem(LS_SOUND, String(soundEnabled));
+  }, [soundEnabled]);
+
+  useEffect(() => {
+    localStorage.setItem(LS_LANGUAGE, language);
+    document.documentElement.lang = language;
+    if (language === 'ar') {
+      document.documentElement.dir = 'rtl';
+    } else {
+      document.documentElement.dir = 'ltr';
+    }
+    setSaved(true);
+    const t = setTimeout(() => setSaved(false), 1500);
+    return () => clearTimeout(t);
+  }, [language]);
 
   return (
     <div className="min-h-screen bg-[var(--color-surface)] pb-24">

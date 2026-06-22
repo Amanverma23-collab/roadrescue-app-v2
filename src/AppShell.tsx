@@ -64,6 +64,16 @@ export default function AppShell() {
   const [services, setServices] = useState<Service[]>([]);
 
   useEffect(() => {
+    const dark = localStorage.getItem('rr_settings_dark_mode') === 'true';
+    if (dark) document.documentElement.classList.add('dark');
+    else document.documentElement.classList.remove('dark');
+
+    const lang = localStorage.getItem('rr_settings_language') || 'en';
+    document.documentElement.lang = lang;
+    document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+  }, []);
+
+  useEffect(() => {
     (async () => {
       try {
         const s = await fetchServices();
