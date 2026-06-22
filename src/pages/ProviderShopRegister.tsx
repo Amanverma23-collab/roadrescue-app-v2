@@ -17,6 +17,7 @@ const LS_SHOP_SERVICES = 'rr_provider_shop_services';
 declare global {
   interface Window {
     initMap?: () => void;
+    initMapCallback?: () => void;
     google?: any;
   }
 }
@@ -38,14 +39,14 @@ export default function ProviderShopRegister() {
   const [lng, setLng] = useState(() => parseFloat(localStorage.getItem(LS_SHOP_LNG) || '0') || null);
   const [mapLoaded, setMapLoaded] = useState(false);
   const [pinLabel, setPinLabel] = useState('');
-  const [services, setServices] = useState(() => {
+  const [services, setServices] = useState<Array<{ name: string; price: string }>>(() => {
     const saved = localStorage.getItem(LS_SHOP_SERVICES);
     if (saved) { try { return JSON.parse(saved); } catch {} }
     return [{ name: '', price: '' }];
   });
 
   const addService = () => setServices([...services, { name: '', price: '' }]);
-  const removeService = (i: number) => { if (services.length > 1) setServices(services.filter((_, idx) => idx !== i)); };
+  const removeService = (i: number) => { if (services.length > 1) setServices(services.filter((_: { name: string; price: string }, idx: number) => idx !== i)); };
   const updateService = (i: number, key: 'name' | 'price', val: string) => {
     const list = [...services]; list[i][key] = val; setServices(list);
   };
@@ -331,7 +332,7 @@ export default function ProviderShopRegister() {
 
               <div className="mt-3.5 space-y-2.5">
                 <AnimatePresence initial={false}>
-                  {services.map((s, index) => (
+                  {services.map((s: { name: string; price: string }, index: number) => (
                     <motion.div
                       key={index}
                       initial={{ opacity: 0, height: 0 }}
