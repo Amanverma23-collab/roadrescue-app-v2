@@ -4,7 +4,8 @@ import TopBar from '../components/TopBar';
 import ServiceCard from '../components/ServiceCard';
 import type { Service } from '../lib/api';
 import { fetchServices } from '../lib/api';
-import { MapPin, PhoneCall } from 'lucide-react';
+import { MapPin, UserCheck, ArrowRight } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 export default function Home({
   phone,
@@ -40,77 +41,125 @@ export default function Home({
     return 'Good evening';
   }, []);
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.06
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 12 },
+    show: { opacity: 1, y: 0, transition: { type: 'spring' as const, stiffness: 300, damping: 24 } }
+  };
+
   return (
-    <div className="min-h-screen bg-slate-50 pb-28">
+    <div className="min-h-screen bg-[var(--color-surface)] pb-24">
       <TopBar title="RoadRescue" />
 
-      <div className="mx-auto w-full max-w-md px-4 pt-4">
-        <div className="rounded-3xl bg-gradient-to-br from-blue-600 to-blue-800 p-5 text-white shadow-sm">
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <div className="text-xs text-white/80">{greeting}</div>
-              <div className="mt-1 text-lg font-bold tracking-tight">Need help fast?</div>
-              <div className="mt-2 text-sm leading-6 text-white/90">
-                Choose a service to discover the nearest providers and contact them in one tap.
-              </div>
-            </div>
-            <div className="rounded-2xl bg-white/15 p-3">
-              <PhoneCall className="h-6 w-6" />
-            </div>
+      <div className="mx-auto w-full max-w-md px-4 pt-5">
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+          className="rounded-2xl bg-[var(--color-primary)] p-5 text-white relative overflow-hidden"
+        >
+          <div className="absolute right-0 top-0 w-48 h-48 bg-white/5 rounded-full blur-2xl pointer-events-none" />
+          <div className="absolute -left-8 bottom-0 w-32 h-32 bg-[var(--color-accent)]/10 rounded-full blur-xl pointer-events-none" />
+
+          <div className="relative z-10">
+            <span className="text-[11px] uppercase tracking-wider font-medium text-white/60">
+              {greeting}
+            </span>
+            <h2 className="mt-1.5 text-xl font-bold tracking-tight text-white leading-tight">
+              Emergency Roadside
+            </h2>
+            <p className="mt-2 text-[13px] leading-relaxed text-white/70">
+              Select a rescue service below. We'll match you to the nearest verified responder instantly.
+            </p>
           </div>
 
-          <div className="mt-4 grid grid-cols-2 gap-3">
-            <div className="rounded-2xl bg-white/10 p-3">
-              <div className="flex items-center gap-2 text-xs font-semibold">
-                <MapPin className="h-4 w-4" /> Location
+          <div className="mt-5 grid grid-cols-2 gap-3 relative z-10">
+            <div className="rounded-xl bg-white/10 p-3.5">
+              <div className="flex items-center gap-1.5 text-[11px] font-medium text-white/50 uppercase tracking-wider">
+                <MapPin className="h-3.5 w-3.5" /> GPS Status
               </div>
-              <div className="mt-1 text-sm font-bold">
-                {location ? `${location.lat.toFixed(3)}, ${location.lng.toFixed(3)}` : 'Not set'}
-              </div>
-              <div className="mt-0.5 text-[11px] text-white/80">
-                {location?.accuracy ? `±${Math.round(location.accuracy)}m` : 'Enable for nearest results'}
-              </div>
+              <p className="mt-1.5 text-[13px] font-semibold text-white">
+                {location ? `${location.lat.toFixed(3)}, ${location.lng.toFixed(3)}` : 'Not Set'}
+              </p>
+              <span className="mt-1 block text-[10px] text-white/50">
+                {location?.accuracy ? `Within ±${Math.round(location.accuracy)}m` : 'Enable GPS location'}
+              </span>
             </div>
-            <div className="rounded-2xl bg-white/10 p-3">
-              <div className="text-xs font-semibold">Signed in</div>
-              <div className="mt-1 text-sm font-bold">{phone ? phone : 'Guest'}</div>
-              <div className="mt-0.5 text-[11px] text-white/80">Phone verified ✅</div>
+            
+            <div className="rounded-xl bg-white/10 p-3.5">
+              <div className="flex items-center gap-1.5 text-[11px] font-medium text-white/50 uppercase tracking-wider">
+                <UserCheck className="h-3.5 w-3.5" /> Account
+              </div>
+              <p className="mt-1.5 text-[13px] font-semibold text-white truncate">
+                {phone ? phone : 'Guest Driver'}
+              </p>
+              <span className="mt-1 block text-[10px] text-emerald-400">
+                Verified Customer
+              </span>
             </div>
           </div>
-        </div>
+        </motion.div>
 
-        <div className="mt-5 flex items-center justify-between">
+        <div className="mt-6 flex items-center justify-between">
           <div>
-            <div className="text-sm font-bold text-slate-900">Services</div>
-            <div className="text-xs text-slate-500">Same nearest-provider flow for every category</div>
+            <h3 className="text-[15px] font-semibold text-gray-900">Rescue Services</h3>
+            <p className="text-[12px] text-gray-500 mt-0.5">All packages include live tracking</p>
           </div>
           <Link
             to="/search"
-            className="rounded-2xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-800 shadow-sm"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-gray-100 px-3 py-1.5 text-[12px] font-medium text-gray-700 transition-colors hover:bg-gray-200 active:scale-95"
           >
-            Search
+            <span>Search</span>
+            <ArrowRight className="h-3.5 w-3.5" />
           </Link>
         </div>
 
-        {error ? (
-          <div className="mt-4 rounded-2xl border border-orange-200 bg-orange-50 px-3 py-2 text-xs text-orange-800">
+        {error && (
+          <div className="mt-4 rounded-xl bg-amber-50 border border-amber-100 px-4 py-3 text-[13px] font-medium text-amber-800">
             {error}
           </div>
-        ) : null}
+        )}
 
         {loading ? (
           <div className="mt-4 grid gap-3">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="h-[92px] animate-pulse rounded-3xl border border-slate-200 bg-white" />
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="h-[72px] skeleton rounded-2xl bg-white border border-gray-100" />
             ))}
           </div>
         ) : (
-          <div className="mt-4 grid gap-3">
+          <motion.div
+            variants={containerVariants}
+            initial="hidden"
+            animate="show"
+            className="mt-4 grid gap-3"
+          >
             {services.map((s) => (
-              <ServiceCard key={s.id} service={s} />
+              <motion.div key={s.id} variants={itemVariants}>
+                <ServiceCard service={s} />
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         )}
+
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.4 }}
+          className="mt-8 mb-4 text-center"
+        >
+          <p className="text-[11px] text-gray-400">
+            Trusted by 10,000+ drivers across India
+          </p>
+        </motion.div>
       </div>
     </div>
   );

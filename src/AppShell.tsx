@@ -88,12 +88,12 @@ const showNav = useMemo(() => {
     '/provider-shop-register',
     '/verification-pending',
     '/provider-approved',
-'/subscription'
+    '/subscription'
   ].includes(loc.pathname);
 }, [authed, loc.pathname]);
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-[var(--color-surface)]">
       <Routes>
         <Route
   path="/"
@@ -143,35 +143,45 @@ const showNav = useMemo(() => {
 <Route
  path="/verification-pending"
  element={
-  <div className="mx-auto w-full max-w-md min-h-screen p-5">
+  <div className="mx-auto w-full max-w-md min-h-screen bg-[var(--color-surface)] px-4 py-6">
 
-   <h1 className="text-2xl font-bold">
+   <h1 className="text-lg font-semibold text-gray-900">
     Verification Pending
    </h1>
 
-   <div className="mt-6 rounded-3xl border p-5 text-center">
+   <div className="mt-6 rounded-2xl bg-white border border-gray-100 p-5 text-center shadow-sm">
 
-    <div className="text-5xl">
-      🟡
+    <div className="flex justify-center">
+
+     <div className="relative">
+
+      <div className="h-24 w-24 rounded-full bg-amber-100"/>
+
+      <div className="absolute inset-0 flex items-center justify-center text-5xl">
+       🟡
+      </div>
+
+     </div>
+
     </div>
 
-    <div className="mx-auto w-full max-w-md min-h-screen bg-slate-50 px-4 py-6">
+    <div className="mx-auto w-full max-w-md">
 
-<div className="text-sm font-semibold">
+<div className="text-[11px] font-medium text-gray-500">
 Step 3 / 4
 </div>
 
-<div className="mt-2 h-3 rounded-full bg-slate-200 overflow-hidden">
-<div className="h-full w-3/4 rounded-full bg-blue-600"/>
+<div className="mt-2 h-2 rounded-full bg-gray-200 overflow-hidden">
+<div className="h-full w-3/4 rounded-full bg-[var(--color-primary)]"/>
 </div>
 
-<div className="mt-8 rounded-3xl bg-white p-6 shadow">
+<div className="mt-8 rounded-2xl bg-white border border-gray-100 p-6 shadow-sm">
 
 <div className="flex justify-center">
 
 <div className="relative">
 
-<div className="h-24 w-24 animate-pulse rounded-full bg-yellow-200"/>
+<div className="h-24 w-24 animate-pulse rounded-full bg-amber-200"/>
 
 <div className="absolute inset-0 flex items-center justify-center text-5xl">
 🛡️
@@ -181,74 +191,74 @@ Step 3 / 4
 
 </div>
 
-<h1 className="mt-6 text-center text-2xl font-bold">
+<h1 className="mt-6 text-center text-lg font-semibold">
 Verification in Progress
 </h1>
 
-<p className="mt-2 text-center text-slate-500">
+<p className="mt-2 text-center text-[13px] text-gray-500">
 We're reviewing your profile and shop documents
 </p>
 
-<div className="mt-6 rounded-2xl bg-slate-50 p-4">
+<div className="mt-6 rounded-xl bg-gray-50 p-4">
 
 <div className="flex justify-between">
-<span>✅ Profile Completed</span>
+<span className="text-[13px] text-gray-700">Profile Completed</span>
 </div>
 
-<div className="mt-3">
-✅ Shop Registered
+<div className="mt-3 text-[13px] text-gray-700">
+Shop Registered
 </div>
 
-<div className="mt-3 font-semibold text-yellow-600">
-🟡 Documents Under Review
+<div className="mt-3 font-medium text-amber-600 text-[13px]">
+Documents Under Review
 </div>
 
-<div className="mt-3 text-slate-400">
-⏳ Waiting for approval
+<div className="mt-3 text-[13px] text-gray-400">
+Waiting for approval
 </div>
 
-<div className="mt-3 text-slate-400">
-🔒 Subscription locked
+<div className="mt-3 text-[13px] text-gray-400">
+Subscription locked
 </div>
 
 </div>
 
-<div className="mt-6 rounded-2xl border p-4">
+<div className="mt-6 rounded-xl border border-gray-200 p-4">
 
-<div className="text-sm text-slate-500">
+<div className="text-[12px] text-gray-500">
 Last update
 </div>
 
-<div className="font-semibold">
+<div className="text-[13px] font-medium text-gray-900 mt-1">
 Documents uploaded successfully
 </div>
 
-<div className="text-xs text-slate-400">
+<div className="text-[11px] text-gray-400 mt-1">
 2 min ago
 </div>
 
 </div>
 
 
-<button className="mt-6 w-full rounded-2xl bg-blue-600 p-4 text-white font-semibold">
-🔔 Notify me when approved
+<button className="mt-6 btn-primary w-full">
+Notify me when approved
 </button>
 <button
 onClick={()=>nav('/provider-approved')}
-className="mt-3 w-full rounded-2xl border-2 border-green-600 p-4 font-semibold text-green-600"
+className="mt-3 btn-secondary w-full"
 >
-🛠 Demo Admin Approve
+Demo Admin Approve
 </button>
 
-<div className="mt-4 text-center text-sm text-slate-500">
-After approval you’ll get
+<div className="mt-4 text-center text-[12px] text-gray-400">
+After approval you'll get
 48 hours to activate subscription
 </div>
 
 </div>
 </div>
 
-    <p className="mt-2 text-slate-500">
+    <p className="mt-2 text-[12px] text-gray-400 text-center">
       Verification usually takes 2–24 hours
     </p>
 

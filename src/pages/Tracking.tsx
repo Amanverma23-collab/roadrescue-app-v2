@@ -15,7 +15,9 @@ import {
   Phone,
   ShieldCheck,
   Siren,
+  Milestone,
 } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 type Request = {
   id: number;
@@ -58,7 +60,7 @@ async function act(id: number, action: string, patch?: any): Promise<Request> {
   });
   const data = await res.json();
   if (!res.ok) throw new Error(data?.error || 'Action failed');
-  return data;
+  return data as Request;
 }
 
 async function postUpdate(request_id: number, provider_lat: number, provider_lng: number, speed_kph?: number) {
@@ -77,19 +79,19 @@ async function getUpdates(request_id: number): Promise<Update[]> {
 function statusLabel(status: string) {
   switch (status) {
     case 'requested':
-      return { label: 'Request sent', tone: 'bg-orange-50 text-orange-700 border-orange-200' };
+      return { label: 'Request Sent', tone: 'bg-amber-50 text-amber-700 border-amber-200' };
     case 'accepted':
-      return { label: 'Accepted  en route', tone: 'bg-emerald-50 text-emerald-700 border-emerald-200' };
+      return { label: 'En Route', tone: 'bg-blue-50 text-blue-700 border-blue-200' };
     case 'declined':
-      return { label: 'Declined', tone: 'bg-slate-100 text-slate-700 border-slate-200' };
+      return { label: 'Declined', tone: 'bg-gray-100 text-gray-700 border-gray-200' };
     case 'arrived':
-      return { label: 'Arrived', tone: 'bg-blue-50 text-blue-700 border-blue-200' };
+      return { label: 'Arrived', tone: 'bg-emerald-50 text-emerald-700 border-emerald-200' };
     case 'completed':
-      return { label: 'Completed', tone: 'bg-slate-900 text-white border-slate-900' };
+      return { label: 'Completed', tone: 'bg-gray-900 text-white border-gray-900' };
     case 'cancelled':
-      return { label: 'Cancelled', tone: 'bg-slate-100 text-slate-700 border-slate-200' };
+      return { label: 'Cancelled', tone: 'bg-gray-100 text-gray-700 border-gray-200' };
     default:
-      return { label: status, tone: 'bg-slate-100 text-slate-700 border-slate-200' };
+      return { label: status, tone: 'bg-gray-100 text-gray-700 border-gray-200' };
   }
 }
 
@@ -110,7 +112,6 @@ export default function Tracking({
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
-  // Local simulated provider position for provider-mode.
   const [simLat, setSimLat] = useState<number | null>(null);
   const [simLng, setSimLng] = useState<number | null>(null);
 
@@ -172,15 +173,12 @@ export default function Tracking({
 
   useEffect(() => {
     load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [requestId]);
 
-  // Poll request + updates.
   useInterval(() => {
     load().catch(() => {});
   }, 2000);
 
-  // Initialize provider simulation start point.
   useEffect(() => {
     if (mode !== 'provider') return;
     if (!req) return;
@@ -193,7 +191,6 @@ export default function Tracking({
     }
   }, [mode, req, provider, simLat, simLng]);
 
-  // Simulated real-time movement from provider to customer when accepted.
   useInterval(
     () => {
       if (mode !== 'provider') return;
@@ -201,13 +198,12 @@ export default function Tracking({
       if (!customerPoint) return;
       if (simLat == null || simLng == null) return;
 
-      const t = 0.08; // step
+      const t = 0.08;
       const nextLat = lerp(simLat, customerPoint.lat, t);
       const nextLng = lerp(simLng, customerPoint.lng, t);
       setSimLat(nextLat);
       setSimLng(nextLng);
 
-      // Persist update for customer to see.
       postUpdate(requestId, nextLat, nextLng, 32).catch(() => {});
 
       const km = haversineKm({ lat: nextLat, lng: nextLng }, customerPoint);
@@ -219,136 +215,169 @@ export default function Tracking({
   );
 
   const badge = statusLabel(req?.status || 'loading');
-
   const providerModeMismatch = mode === 'provider' && providerIdParam && req && req.provider_id !== providerIdParam;
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-28">
-      <TopBar title={mode === 'provider' ? 'Live tracking (provider)' : 'Live tracking'} backTo="/home" />
+    <div className="min-h-screen bg-[var(--color-surface)] pb-24">
+      <TopBar title={mode === 'provider' ? 'Operator Console' : 'Live Tracking'} backTo="/home" />
 
       <div className="mx-auto w-full max-w-md px-4 pt-4">
-        {err ? (
-          <div className="rounded-2xl border border-orange-200 bg-orange-50 px-3 py-2 text-xs text-orange-800">{err}</div>
-        ) : null}
-
-        {providerModeMismatch ? (
-          <div className="mt-3 rounded-2xl border border-orange-200 bg-orange-50 px-3 py-2 text-xs text-orange-800">
-            This request belongs to another provider.
+        {err && (
+          <div className="rounded-xl bg-red-50 border border-red-100 px-4 py-3 text-[12px] font-medium text-red-700">
+            {err}
           </div>
-        ) : null}
+        )}
 
-        <div className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm">
-          <div className="flex items-start justify-between gap-2">
+        {providerModeMismatch && (
+          <div className="mt-3 rounded-xl bg-red-50 border border-red-100 px-4 py-3 text-[12px] font-medium text-red-700">
+            Security mismatch: Selected request belongs to another mechanic.
+          </div>
+        )}
+
+        <motion.div
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+          className="rounded-2xl bg-white border border-gray-100 p-5 shadow-sm"
+        >
+          <div className="flex items-start justify-between gap-3 border-b border-gray-100 pb-4">
             <div>
-              <div className="text-sm font-bold text-slate-900">Request #{requestId}</div>
-              <div className="mt-1 text-xs text-slate-500">
-                {mode === 'provider' ? 'You can see the customer location and navigate.' : 'Track your provider in real time.'}
-              </div>
+              <h2 className="text-[15px] font-semibold text-gray-900">SOS Request #{requestId}</h2>
+              <p className="mt-1 text-[12px] text-gray-500">
+                {mode === 'provider' ? 'Customer location and route dispatch.' : 'Live tracking details of your responder.'}
+              </p>
             </div>
-            <span className={`rounded-full border px-3 py-1 text-[11px] font-semibold ${badge.tone}`}>{badge.label}</span>
+            <span className={`shrink-0 rounded-full border px-3 py-1 text-[10px] font-semibold uppercase tracking-wide ${badge.tone}`}>
+              {badge.label}
+            </span>
           </div>
 
-          <div className="mt-3 grid gap-2">
-            <div className="flex items-center justify-between gap-3 rounded-2xl bg-slate-50 px-3 py-2 text-xs">
-              <span className="text-slate-500">Provider</span>
-              <span className="font-semibold text-slate-900 truncate">{provider?.name || ''}</span>
+          <div className="mt-4 space-y-2">
+            <div className="flex items-center justify-between rounded-lg bg-gray-50 px-3.5 py-2.5 text-[12px] font-medium">
+              <span className="text-gray-500">Service Center</span>
+              <span className="text-gray-900 truncate">{provider?.name || 'Loading details...'}</span>
             </div>
-            <div className="flex items-center justify-between gap-3 rounded-2xl bg-slate-50 px-3 py-2 text-xs">
-              <span className="text-slate-500">Distance</span>
-              <span className="font-semibold text-slate-900">{distance || ''}</span>
+            <div className="flex items-center justify-between rounded-lg bg-gray-50 px-3.5 py-2.5 text-[12px] font-medium">
+              <span className="text-gray-500">Distance Remaining</span>
+              <span className="text-gray-900 font-semibold">{distance || 'Calculating...'}</span>
             </div>
-            <div className="flex items-center justify-between gap-3 rounded-2xl bg-slate-50 px-3 py-2 text-xs">
-              <span className="text-slate-500">ETA</span>
-              <span className="font-semibold text-slate-900">{req?.eta_minutes ? `${req.eta_minutes} min` : 'Calculating'}</span>
+            <div className="flex items-center justify-between rounded-lg bg-gray-50 px-3.5 py-2.5 text-[12px] font-medium">
+              <span className="text-gray-500">Estimated ETA</span>
+              <span className="text-gray-900 font-semibold">{req?.eta_minutes ? `${req.eta_minutes} min` : 'Calculating...'}</span>
             </div>
           </div>
 
-          <div className="mt-3 flex items-center gap-2">
-            {provider?.phone ? (
+          <div className="mt-4 flex items-center gap-2">
+            {provider?.phone && (
               <a
                 href={`tel:${provider.phone}`}
-                className="inline-flex flex-1 items-center justify-center gap-2 rounded-2xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 active:bg-blue-800"
+                className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-[var(--color-primary)] px-4 py-3 text-[12px] font-semibold text-white transition-all hover:bg-[#2d2d4a] active:scale-95 cursor-pointer"
               >
-                <Phone className="h-4 w-4" /> Call
-              </a>
-            ) : null}
-
-            {mode === 'provider' ? (
-              <a
-                href={customerPoint ? `https://www.google.com/maps?q=${customerPoint.lat},${customerPoint.lng}` : undefined}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center justify-center rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-800 shadow-sm hover:bg-slate-50"
-              >
-                <Navigation className="h-4 w-4" />
-              </a>
-            ) : (
-              <a
-                href={providerPoint ? `https://www.google.com/maps?q=${providerPoint.lat},${providerPoint.lng}` : undefined}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center justify-center rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-800 shadow-sm hover:bg-slate-50"
-              >
-                <Navigation className="h-4 w-4" />
+                <Phone className="h-3.5 w-3.5" /> Call Partner
               </a>
             )}
+
+            <a
+              href={mode === 'provider' 
+                ? (customerPoint ? `https://www.google.com/maps?q=${customerPoint.lat},${customerPoint.lng}` : undefined)
+                : (providerPoint ? `https://www.google.com/maps?q=${providerPoint.lat},${providerPoint.lng}` : undefined)
+              }
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center justify-center rounded-xl border border-gray-200 bg-white px-4 py-3 text-gray-700 hover:bg-gray-50 active:scale-95 transition-all cursor-pointer"
+            >
+              <Navigation className="h-4 w-4" />
+            </a>
           </div>
 
-          {mode === 'customer' && req?.status === 'requested' ? (
-            <div className="mt-3 rounded-2xl border border-orange-200 bg-orange-50 px-3 py-2 text-xs text-orange-800">
-              Waiting for the provider to accept
+          {mode === 'customer' && req?.status === 'requested' && (
+            <div className="mt-4 rounded-xl bg-amber-50 border border-amber-100 p-4 text-[12px] font-medium text-amber-800">
+              Dispatch alert sent. Provider must accept to share live location.
             </div>
-          ) : null}
+          )}
 
-          {mode === 'provider' && req?.status === 'requested' ? (
-            <div className="mt-3 rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-700">
-              Accept the request from the Provider Console to start live tracking.
+          {mode === 'provider' && req?.status === 'requested' && (
+            <div className="mt-4 rounded-xl bg-gray-50 border border-gray-200 p-4 text-[12px] text-gray-600">
+              Review requests and press "Accept" from Provider Console to start simulation.
             </div>
-          ) : null}
-        </div>
+          )}
+        </motion.div>
 
-        <div className="mt-3 overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
-          <div className="flex items-center justify-between gap-2 border-b border-slate-200 px-4 py-3">
-            <div className="min-w-0">
-              <div className="text-sm font-semibold text-slate-900">Live map</div>
-              <div className="text-xs text-slate-500">Two markers customer and provider</div>
-            </div>
-            <div className="inline-flex items-center gap-2 rounded-2xl bg-slate-900 px-3 py-2 text-xs font-semibold text-white">
-              <LocateFixed className="h-4 w-4" /> Live
-            </div>
-          </div>
-          <iframe title="Tracking map" src={mapSrc} className="h-72 w-full" loading="lazy" />
-        </div>
-
-        <div className="mt-3 rounded-3xl border border-slate-200 bg-white p-4 shadow-sm">
-          <div className="flex items-center justify-between gap-2">
+        <div className="mt-4 overflow-hidden rounded-2xl bg-white border border-gray-100 shadow-sm">
+          <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3">
             <div>
-              <div className="text-sm font-bold text-slate-900">Status updates</div>
-              <div className="mt-1 text-xs text-slate-500">Request state + real-time movement indicators</div>
+              <h3 className="text-[11px] font-medium text-gray-500 uppercase tracking-wider">Geographic Mapping</h3>
+              <p className="text-[10px] text-gray-400 mt-0.5">Dual-marker orientation system</p>
             </div>
-            <span className="rounded-2xl bg-blue-50 px-3 py-2 text-xs font-semibold text-blue-700">{updates.length} pings</span>
-          </div>
-
-          <div className="mt-3 grid gap-2">
-            <div className="flex items-center justify-between rounded-2xl bg-slate-50 px-3 py-2 text-xs">
-              <span className="inline-flex items-center gap-2 text-slate-700"><Siren className="h-4 w-4 text-orange-500" /> Requested</span>
-              <span className="text-slate-500">{req?.created_at ? new Date(req.created_at).toLocaleTimeString() : ''}</span>
-            </div>
-            <div className="flex items-center justify-between rounded-2xl bg-slate-50 px-3 py-2 text-xs">
-              <span className="inline-flex items-center gap-2 text-slate-700"><CheckCircle2 className="h-4 w-4 text-emerald-600" /> Accepted</span>
-              <span className="text-slate-500">{req?.accepted_at ? new Date(req.accepted_at).toLocaleTimeString() : ''}</span>
-            </div>
-            <div className="flex items-center justify-between rounded-2xl bg-slate-50 px-3 py-2 text-xs">
-              <span className="inline-flex items-center gap-2 text-slate-700"><MapPin className="h-4 w-4 text-blue-600" /> Arrived</span>
-              <span className="text-slate-500">{req?.status === 'arrived' ? 'Now' : ''}</span>
-            </div>
-            <div className="flex items-center justify-between rounded-2xl bg-slate-50 px-3 py-2 text-xs">
-              <span className="inline-flex items-center gap-2 text-slate-700"><Clock className="h-4 w-4 text-slate-700" /> Completed</span>
-              <span className="text-slate-500">{req?.completed_at ? new Date(req.completed_at).toLocaleTimeString() : ''}</span>
+            <div className="inline-flex items-center gap-1.5 rounded-lg bg-gray-900 px-3 py-1.5 text-[11px] font-medium text-white">
+              <LocateFixed className="h-3.5 w-3.5 text-blue-400 animate-spin" /> Live
             </div>
           </div>
+          <iframe title="Tracking Map" src={mapSrc} className="h-64 w-full" loading="lazy" />
+        </div>
 
-          <div className="mt-3 flex items-center gap-2">
+        <div className="mt-4 rounded-2xl bg-white border border-gray-100 p-5 shadow-sm">
+          <div className="flex items-center justify-between border-b border-gray-100 pb-4">
+            <div>
+              <h3 className="text-[11px] font-medium text-gray-500 uppercase tracking-wider">Milestone Timeline</h3>
+              <p className="text-[10px] text-gray-400 mt-0.5">Real-time status sequence</p>
+            </div>
+            <span className="rounded-lg bg-gray-100 px-2.5 py-1 text-[10px] font-semibold text-gray-600">
+              {updates.length} pings
+            </span>
+          </div>
+
+          <div className="mt-5 space-y-4">
+            <div className="flex items-center justify-between text-[12px] font-medium text-gray-900">
+              <span className="flex items-center gap-2">
+                <div className="flex h-7 w-7 items-center justify-center rounded-full bg-amber-100">
+                  <Siren className="h-3.5 w-3.5 text-amber-600" />
+                </div>
+                Dispatch Requested
+              </span>
+              <span className="text-[10px] text-gray-400">
+                {req?.created_at ? new Date(req.created_at).toLocaleTimeString() : '—'}
+              </span>
+            </div>
+
+            <div className="flex items-center justify-between text-[12px] font-medium text-gray-900">
+              <span className="flex items-center gap-2">
+                <div className="flex h-7 w-7 items-center justify-center rounded-full bg-blue-100">
+                  <CheckCircle2 className="h-3.5 w-3.5 text-blue-600" />
+                </div>
+                Request Accepted
+              </span>
+              <span className="text-[10px] text-gray-400">
+                {req?.accepted_at ? new Date(req.accepted_at).toLocaleTimeString() : 'Pending'}
+              </span>
+            </div>
+
+            <div className="flex items-center justify-between text-[12px] font-medium text-gray-900">
+              <span className="flex items-center gap-2">
+                <div className="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-100">
+                  <MapPin className="h-3.5 w-3.5 text-emerald-600" />
+                </div>
+                Responder Arrived
+              </span>
+              <span className="text-[10px] text-gray-400">
+                {req?.status === 'arrived' ? 'Arrived Now' : 'Pending route'}
+              </span>
+            </div>
+
+            <div className="flex items-center justify-between text-[12px] font-medium text-gray-900">
+              <span className="flex items-center gap-2">
+                <div className="flex h-7 w-7 items-center justify-center rounded-full bg-purple-100">
+                  <Milestone className="h-3.5 w-3.5 text-purple-600" />
+                </div>
+                Dispatch Completed
+              </span>
+              <span className="text-[10px] text-gray-400">
+                {req?.completed_at ? new Date(req.completed_at).toLocaleTimeString() : 'In progress'}
+              </span>
+            </div>
+          </div>
+
+          <div className="mt-5 pt-4 border-t border-gray-100 flex flex-col gap-2">
             {mode === 'provider' ? (
               <>
                 <button
@@ -364,28 +393,24 @@ export default function Tracking({
                       setBusy(false);
                     }
                   }}
-                  className="inline-flex flex-1 items-center justify-center gap-2 rounded-2xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white shadow-sm hover:bg-slate-800 active:bg-slate-950 disabled:opacity-60"
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gray-900 px-4 py-3 text-[12px] font-semibold text-white hover:bg-gray-800 active:scale-95 disabled:opacity-60 cursor-pointer"
                 >
-                  Finish job <ArrowRight className="h-4 w-4" />
+                  <span>Finish SOS Job</span>
+                  <ArrowRight className="h-4 w-4" />
                 </button>
-                <div className="rounded-2xl border border-slate-200 bg-white px-3 py-3 text-xs text-slate-600">
-                  <div className="font-semibold text-slate-900">Simulated movement</div>
-                  <div className="mt-1">Provider marker pings every ~1.2s to mimic real-time tracking.</div>
-                </div>
+                <p className="text-[10px] text-gray-400 leading-relaxed text-center">
+                  Live movement simulation updates location pings automatically.
+                </p>
               </>
             ) : (
-              <div className="w-full rounded-2xl border border-slate-200 bg-white px-3 py-3 text-xs text-slate-600">
-                <div className="flex items-center gap-2 font-semibold text-slate-900">
-                  <ShieldCheck className="h-4 w-4 text-emerald-600" /> Safety note
+              <div className="rounded-xl bg-gray-50 border border-gray-200 p-4 text-[11px] leading-relaxed text-gray-500">
+                <div className="flex items-center gap-1.5 font-semibold text-gray-800 mb-1">
+                  <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" /> Secure dispatch controls
                 </div>
-                <div className="mt-1">Share only necessary details. For life-threatening emergencies, call local authorities.</div>
+                For life-threatening situations, contact standard police / healthcare authorities immediately.
               </div>
             )}
           </div>
-        </div>
-
-        <div className="mt-3 text-center text-xs text-slate-500">
-          Tip: Open <span className="font-semibold">Provider console</span> from a provider detail page to accept/track.
         </div>
       </div>
     </div>

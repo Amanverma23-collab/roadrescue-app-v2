@@ -1,7 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import TopBar from '../components/TopBar';
-import { BadgeIndianRupee, CheckCircle2, CreditCard, Landmark, QrCode, Repeat, ShieldCheck, Tag } from 'lucide-react';
+import { BadgeIndianRupee, CheckCircle2, CreditCard, Landmark, QrCode, Repeat, ShieldCheck, Tag, Zap, Crown } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 type Sub = {
   id: number;
@@ -30,8 +31,8 @@ export default function ProviderPaywall({ providerPhone }: { providerPhone: stri
   const [coupon, setCoupon] = useState('');
   const [autoRenew, setAutoRenew] = useState(true);
   const [planKey] = useState<'m1' | 'm6' | 'y1' | null>(
-  (sp.get('plan') as 'm1' | 'm6' | 'y1') || null
-);
+    (sp.get('plan') as 'm1' | 'm6' | 'y1') || null
+  );
   const [method, setMethod] = useState<'upi' | 'card' | 'netbanking'>('upi');
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
@@ -79,180 +80,152 @@ export default function ProviderPaywall({ providerPhone }: { providerPhone: stri
     }
   };
 
-  const planCards = [
-    { key: 'm1' as const, title: '1 month', price: 60, sub: '60 / month', badge: 'Starter' },
-    { key: 'm6' as const, title: '6 months', price: 300, sub: '300 total', badge: 'Popular' },
-    { key: 'y1' as const, title: '1 year', price: 600, sub: '600 total', badge: 'Best value' },
-  ];
-
   return (
-    <div className="min-h-screen pb-28" style={{
-      background:
-        'radial-gradient(900px 600px at 15% 10%, rgba(59,130,246,0.22), transparent 60%), radial-gradient(700px 520px at 85% 25%, rgba(249,115,22,0.18), transparent 60%), radial-gradient(900px 700px at 50% 95%, rgba(168,85,247,0.14), transparent 60%), linear-gradient(180deg, rgba(248,250,252,1) 0%, rgba(241,245,249,1) 55%, rgba(248,250,252,1) 100%)',
-    }}>
-      <TopBar title="Premium plans" backTo="/provider-console" />
+    <div className="min-h-screen pb-24 bg-[var(--color-surface)]">
+      <TopBar title="Premium Plans" backTo="/provider-console" />
 
       <div className="mx-auto w-full max-w-md px-4 pt-4">
-        <div className="relative overflow-hidden rounded-3xl border border-white/60 bg-white/60 p-5 shadow-[0_20px_60px_rgba(2,6,23,0.14)] backdrop-blur-xl">
-          <div
-            className="pointer-events-none absolute inset-0 opacity-80"
-            style={{
-              background:
-                'radial-gradient(520px 260px at 30% 0%, rgba(59,130,246,0.20), transparent 60%), radial-gradient(520px 260px at 100% 65%, rgba(249,115,22,0.14), transparent 60%)',
-            }}
-          />
+        <motion.div
+          initial={{ opacity: 0, y: -8, scale: 0.98 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 0.4 }}
+          className="relative overflow-hidden rounded-2xl bg-white border border-gray-100 p-5 shadow-sm"
+        >
           <div className="relative">
-            <div className="inline-flex items-center gap-2 rounded-full bg-blue-600/10 px-3 py-1 text-[11px] font-semibold text-blue-700">
-              <ShieldCheck className="h-4 w-4" /> Verified  activate your shop
+            <div className="inline-flex items-center gap-2 rounded-full bg-[var(--color-primary)] px-3 py-1 text-[11px] font-medium text-white">
+              <Crown className="h-4 w-4" /> Upgrade to Premium
             </div>
-            <div className="mt-3 text-xl font-extrabold tracking-tight text-slate-900">Upgrade to Premium</div>
-            <div className="mt-2 text-sm leading-6 text-slate-600">
-              Unlock customer visibility, media uploads, and service management. Auto-renew is enabled by default.
+            <div className="mt-3 text-lg font-bold tracking-tight text-gray-900">Unlock Your Shop's Potential</div>
+            <div className="mt-2 text-[13px] leading-relaxed text-gray-600">
+              Get customer visibility, media uploads, and service management. Auto-renew enabled by default.
             </div>
           {pendingPurchase?.expires_at ? (
-            <div className="mt-3 rounded-2xl border border-orange-200 bg-orange-50 px-3 py-2 text-xs text-orange-900">
-              You must purchase within 48 hours. Expires at {new Date(pendingPurchase.expires_at).toLocaleString()}.
+            <div className="mt-3 rounded-xl bg-amber-50 border border-amber-100 px-3 py-2 text-[12px] text-amber-800 font-medium">
+              Purchase within 48 hours. Expires: {new Date(pendingPurchase.expires_at).toLocaleString()}
             </div>
           ) : null}
 
           <div className="mt-4 grid grid-cols-3 gap-2">
-            <div className="rounded-2xl bg-white/70 p-3">
-              <div className="text-[11px] text-slate-500">Features</div>
-              <div className="mt-1 text-xs font-semibold text-slate-900">Dashboard</div>
+            <div className="rounded-xl bg-gray-50 p-3 text-center">
+              <div className="text-[10px] text-gray-500 font-medium uppercase tracking-wider">Features</div>
+              <div className="mt-1 text-[12px] font-semibold text-gray-900">Dashboard</div>
             </div>
-            <div className="rounded-2xl bg-white/70 p-3">
-              <div className="text-[11px] text-slate-500">Payment</div>
-              <div className="mt-1 text-xs font-semibold text-slate-900">UPI</div>
+            <div className="rounded-xl bg-gray-50 p-3 text-center">
+              <div className="text-[10px] text-gray-500 font-medium uppercase tracking-wider">Payment</div>
+              <div className="mt-1 text-[12px] font-semibold text-gray-900">UPI</div>
             </div>
-            <div className="rounded-2xl bg-white/70 p-3">
-              <div className="text-[11px] text-slate-500">Renewal</div>
-              <div className="mt-1 text-xs font-semibold text-slate-900">Auto</div>
+            <div className="rounded-xl bg-gray-50 p-3 text-center">
+              <div className="text-[10px] text-gray-500 font-medium uppercase tracking-wider">Renewal</div>
+              <div className="mt-1 text-[12px] font-semibold text-gray-900">Auto</div>
             </div>
           </div>
           </div>
+        </motion.div>
 
-          <div className="mt-5 grid gap-4">
+        <div className="mt-4 grid gap-4">
+          <motion.button
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            onClick={() => nav('/subscription-payment?plan=m1')}
+            className="rounded-2xl bg-white p-5 border border-gray-200 shadow-sm text-left hover:shadow-md hover:border-gray-300 transition-all duration-200 cursor-pointer group"
+          >
+            <div className="flex justify-between items-start">
+              <div>
+                <div className="flex items-center gap-2">
+                  <h3 className="text-lg font-bold">1 Month</h3>
+                  <span className="px-2.5 py-0.5 rounded-full bg-gray-100 text-gray-700 text-[10px] font-semibold">
+                    Starter
+                  </span>
+                </div>
+                <p className="text-gray-500 mt-1 text-[13px]">₹60/month</p>
+                <div className="mt-3 space-y-1.5 text-[12px] text-gray-600">
+                  <div className="flex items-center gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" /> Shop visible to customers</div>
+                  <div className="flex items-center gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" /> Media uploads</div>
+                  <div className="flex items-center gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" /> Service editing</div>
+                  <div className="flex items-center gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" /> Basic support</div>
+                </div>
+              </div>
+              <div className="bg-gray-900 text-white px-4 py-2.5 rounded-xl font-bold group-hover:bg-gray-800 transition-colors">
+                ₹60
+              </div>
+            </div>
+          </motion.button>
 
-<button
-onClick={() => nav('/subscription-payment?plan=m1')}
-className="rounded-3xl bg-white p-5 shadow-[0_10px_30px_rgba(0,0,0,.08)] text-left border hover:scale-[1.02] transition"
->
-<div className="flex justify-between items-start">
-<div>
-<div className="flex items-center gap-2">
-<h3 className="text-2xl font-bold">1 Month</h3>
-<span className="px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-bold">
-Starter
-</span>
-</div>
+          <motion.button
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15 }}
+            onClick={() => nav('/subscription-payment?plan=m6')}
+            className="rounded-2xl bg-white p-5 border-2 border-amber-300 shadow-sm text-left relative cursor-pointer group hover:shadow-md transition-all duration-200"
+          >
+            <div className="absolute top-3 right-3 bg-amber-500 text-white text-[9px] px-2.5 py-0.5 rounded-full font-semibold">
+              MOST POPULAR
+            </div>
+            <div className="flex justify-between items-start">
+              <div>
+                <div className="flex items-center gap-2">
+                  <h3 className="text-lg font-bold">6 Months</h3>
+                  <span className="px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-700 text-[10px] font-semibold">
+                    Popular
+                  </span>
+                </div>
+                <p className="text-gray-500 mt-1 text-[13px]">
+                  ₹300 total
+                  <span className="ml-2 text-emerald-600 font-semibold">Save ₹60</span>
+                </p>
+                <div className="mt-3 space-y-1.5 text-[12px] text-gray-600">
+                  <div className="flex items-center gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" /> Priority visibility</div>
+                  <div className="flex items-center gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" /> Media uploads</div>
+                  <div className="flex items-center gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" /> Service editing</div>
+                  <div className="flex items-center gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" /> Premium support</div>
+                </div>
+              </div>
+              <div className="bg-gray-900 text-white px-4 py-2.5 rounded-xl font-bold group-hover:bg-gray-800 transition-colors">
+                ₹300
+              </div>
+            </div>
+          </motion.button>
 
-<p className="text-slate-500 mt-2">₹60/month</p>
-
-<div className="mt-4 space-y-2 text-sm text-slate-600">
-<div>✅ Shop visible to customers</div>
-<div>✅ Media uploads</div>
-<div>✅ Service editing</div>
-<div>✅ Basic support</div>
-</div>
-</div>
-
-<div className="bg-slate-900 text-white px-4 py-3 rounded-2xl font-bold">
-₹60
-</div>
-</div>
-</button>
-
-
-<button
-onClick={() => nav('/subscription-payment?plan=m6')}
-className="rounded-3xl bg-white p-5 border-2 border-orange-300 shadow-[0_10px_30px_rgba(0,0,0,.08)] text-left relative"
->
-<div className="absolute top-3 right-3 bg-orange-500 text-white text-[10px] px-2 py-1 rounded-full">
-MOST POPULAR
-</div>
-
-<div className="flex justify-between items-start">
-<div>
-<div className="flex items-center gap-2">
-<h3 className="text-2xl font-bold">6 Months</h3>
-
-<span className="px-3 py-1 rounded-full bg-orange-100 text-orange-700 text-xs font-bold">
-Popular
-</span>
-</div>
-
-<p className="text-slate-500 mt-2">
-₹300 total
-<span className="ml-2 text-green-600 font-bold">
-Save ₹60
-</span>
-</p>
-
-<div className="mt-4 space-y-2 text-sm text-slate-600">
-<div>✅ Priority visibility</div>
-<div>✅ Media uploads</div>
-<div>✅ Service editing</div>
-<div>✅ Premium support</div>
-</div>
-</div>
-
-<div className="bg-slate-900 text-white px-4 py-3 rounded-2xl font-bold">
-₹300
-</div>
-</div>
-</button>
-
-
-<button
-onClick={() => nav('/subscription-payment?plan=y1')}
-className="rounded-3xl bg-gradient-to-r from-emerald-50 to-green-50 border border-green-200 p-5 shadow-[0_10px_30px_rgba(0,0,0,.08)] text-left"
->
-<div className="flex justify-between items-start">
-
-<div>
-<div className="flex items-center gap-2">
-<h3 className="text-2xl font-bold">1 Year</h3>
-
-<span className="px-3 py-1 rounded-full bg-green-100 text-green-700 text-xs font-bold">
-Best Value
-</span>
-</div>
-
-<p className="text-slate-500 mt-2">
-₹600 total
-<span className="ml-2 text-green-600 font-bold">
-Save ₹120
-</span>
-</p>
-
-<div className="mt-4 space-y-2 text-sm text-slate-600">
-<div>✅ Top ranking</div>
-<div>✅ Unlimited uploads</div>
-<div>✅ Priority support</div>
-<div>✅ Growth boost</div>
-</div>
-</div>
-
-<div className="bg-green-600 text-white px-4 py-3 rounded-2xl font-bold">
-₹600
-</div>
-
-</div>
-</button>
-
-</div>
+          <motion.button
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            onClick={() => nav('/subscription-payment?plan=y1')}
+            className="rounded-2xl bg-emerald-50 border border-emerald-200 p-5 shadow-sm text-left cursor-pointer group hover:shadow-md transition-all duration-200"
+          >
+            <div className="flex justify-between items-start">
+              <div>
+                <div className="flex items-center gap-2">
+                  <h3 className="text-lg font-bold">1 Year</h3>
+                  <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-[10px] font-semibold">
+                    Best Value
+                  </span>
+                </div>
+                <p className="text-gray-500 mt-1 text-[13px]">
+                  ₹600 total
+                  <span className="ml-2 text-emerald-600 font-semibold">Save ₹120</span>
+                </p>
+                <div className="mt-3 space-y-1.5 text-[12px] text-gray-600">
+                  <div className="flex items-center gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" /> Top ranking</div>
+                  <div className="flex items-center gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" /> Unlimited uploads</div>
+                  <div className="flex items-center gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" /> Priority support</div>
+                  <div className="flex items-center gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" /> Growth boost</div>
+                </div>
+              </div>
+              <div className="bg-emerald-600 text-white px-4 py-2.5 rounded-xl font-bold shadow-sm group-hover:shadow-md transition-all">
+                ₹600
+              </div>
+            </div>
+          </motion.button>
         </div>
 
         {active ? (
-          <div className="mt-4 rounded-3xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-900 shadow-sm">
-            <div className="flex items-center gap-2 font-semibold"><CheckCircle2 className="h-5 w-5" /> Active subscription</div>
-            <div className="mt-1 text-xs text-emerald-800">Ends at: {active.ends_at ? new Date(active.ends_at).toLocaleDateString() : ''}</div>
+          <div className="mt-4 rounded-2xl bg-emerald-50 border border-emerald-200 p-4 text-[13px] text-emerald-900">
+            <div className="flex items-center gap-2 font-semibold"><CheckCircle2 className="h-5 w-5 text-emerald-500" /> Active subscription</div>
+            <div className="mt-1 text-[12px] text-emerald-700">Ends at: {active.ends_at ? new Date(active.ends_at).toLocaleDateString() : ''}</div>
           </div>
         ) : null}
-
-      
-
-
       </div>
     </div>
   );

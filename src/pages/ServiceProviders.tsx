@@ -5,7 +5,8 @@ import ProviderCard from '../components/ProviderCard';
 import type { Provider, Service } from '../lib/api';
 import { fetchProviders, fetchServices } from '../lib/api';
 import { fmtDistanceKm, haversineKm } from '../lib/geo';
-import { Filter, Search } from 'lucide-react';
+import { Filter, Search, Siren } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 export default function ServiceProviders({
   location,
@@ -37,7 +38,6 @@ export default function ServiceProviders({
 
   useEffect(() => {
     load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [serviceSlug]);
 
   const computed = useMemo(() => {
@@ -52,70 +52,103 @@ export default function ServiceProviders({
     return base;
   }, [providers, location, q]);
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: { staggerChildren: 0.05 }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 12 },
+    show: { opacity: 1, y: 0, transition: { type: 'spring' as const, stiffness: 300, damping: 24 } }
+  };
+
   return (
-    <div className="min-h-screen bg-slate-50 pb-28">
+    <div className="min-h-screen bg-[var(--color-surface)] pb-24">
       <TopBar title={service?.name || 'Providers'} backTo="/home" />
 
       <div className="mx-auto w-full max-w-md px-4 pt-4">
-        <div className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm">
+        <motion.div
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="rounded-2xl bg-white border border-gray-100 p-5 shadow-sm"
+        >
           <div className="flex items-start justify-between gap-3">
             <div>
-              <div className="text-sm font-bold text-slate-900">Nearby {service?.name || 'providers'}</div>
-              <div className="mt-1 text-xs text-slate-500">
-                Sorted by distance {location ? 'from your current location.' : '(enable location for accurate distances).'}
-              </div>
+              <h2 className="text-[15px] font-semibold text-gray-900">
+                {service?.name || 'Providers'} near you
+              </h2>
+              <p className="mt-1 text-[12px] text-gray-500">
+                {location ? 'Ranked by distance from GPS location.' : 'Enable location to calculate distances.'}
+              </p>
             </div>
-            <div className="inline-flex items-center gap-2 rounded-2xl bg-slate-900 px-3 py-2 text-xs font-semibold text-white">
-              <Filter className="h-4 w-4" /> Nearest
+            <div className="inline-flex items-center gap-1.5 rounded-lg bg-gray-900 px-3 py-1.5 text-[11px] font-medium text-white">
+              <Filter className="h-3.5 w-3.5" /> 
+              <span>Nearest</span>
             </div>
           </div>
 
-          <div className="mt-3 flex items-center justify-between gap-2 rounded-2xl border border-orange-200 bg-orange-50 px-3 py-2">
+          <div className="mt-4 flex items-center justify-between gap-3 rounded-xl bg-amber-50 border border-amber-100 p-4">
             <div className="min-w-0">
-              <div className="text-xs font-bold text-orange-900">Emergency assistance flow</div>
-              <div className="mt-0.5 text-[11px] text-orange-800/90">Tap “Send Request” to start live tracking after acceptance.</div>
+              <h3 className="text-[13px] font-semibold text-amber-900 flex items-center gap-1.5">
+                <Siren className="h-4 w-4 text-amber-600" /> Urgent assistance flow
+              </h3>
+              <p className="mt-1 text-[11px] leading-relaxed text-amber-700">
+                Skip calling and send a digital dispatch request to start live map tracking.
+              </p>
             </div>
             <a
               href={`/service/${serviceSlug}/request`}
-              className="shrink-0 rounded-2xl bg-orange-500 px-3 py-2 text-xs font-semibold text-white shadow-sm hover:bg-orange-600 active:bg-orange-700"
+              className="shrink-0 rounded-xl bg-amber-600 hover:bg-amber-700 px-3 py-2 text-[12px] font-semibold text-white transition active:scale-95 cursor-pointer"
             >
-              Send request
+              Request SOS
             </a>
           </div>
 
-          <div className="mt-4 flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-3 py-3 focus-within:border-blue-400">
-            <Search className="h-5 w-5 text-slate-400" />
+          <div className="mt-4 flex items-center gap-2.5 rounded-xl bg-gray-50 border border-gray-200 px-3 py-2.5 focus-within:border-[var(--color-primary)] focus-within:ring-2 focus-within:ring-[var(--color-primary)]/10 transition-all">
+            <Search className="h-4 w-4 text-gray-400" />
             <input
               value={q}
               onChange={(e) => setQ(e.target.value)}
-              placeholder="Search by name"
-              className="w-full bg-transparent text-sm font-semibold text-slate-900 outline-none placeholder:font-medium placeholder:text-slate-400"
+              placeholder="Search by center name..."
+              className="w-full bg-transparent text-[13px] font-medium text-gray-900 outline-none placeholder:text-gray-400"
             />
           </div>
-        </div>
+        </motion.div>
 
-        {error ? (
-          <div className="mt-4 rounded-2xl border border-orange-200 bg-orange-50 px-3 py-2 text-xs text-orange-800">
+        {error && (
+          <div className="mt-4 rounded-xl bg-amber-50 border border-amber-100 px-4 py-3 text-[13px] font-medium text-amber-800">
             {error}
           </div>
-        ) : null}
+        )}
 
         {loading ? (
           <div className="mt-4 grid gap-3">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="h-[156px] animate-pulse rounded-3xl border border-slate-200 bg-white" />
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="h-32 skeleton rounded-2xl bg-white border border-gray-100" />
             ))}
           </div>
         ) : (
-          <div className="mt-4 grid gap-3">
+          <motion.div
+            variants={containerVariants}
+            initial="hidden"
+            animate="show"
+            className="mt-4 grid gap-3"
+          >
             {computed.length ? (
-              computed.map(({ p, km }) => <ProviderCard key={p.id} provider={p} distanceLabel={fmtDistanceKm(km)} />)
+              computed.map(({ p, km }) => (
+                <motion.div key={p.id} variants={itemVariants}>
+                  <ProviderCard provider={p} distanceLabel={fmtDistanceKm(km)} />
+                </motion.div>
+              ))
             ) : (
-              <div className="rounded-3xl border border-slate-200 bg-white p-6 text-center text-sm text-slate-600 shadow-sm">
-                No providers found.
+              <div className="rounded-2xl bg-white border border-gray-100 p-8 text-center text-[14px] font-medium text-gray-500">
+                No matching service providers found.
               </div>
             )}
-          </div>
+          </motion.div>
         )}
       </div>
     </div>

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Crosshair, MapPin, ShieldCheck } from 'lucide-react';
 import { getCurrentPosition } from '../lib/geo';
+import { motion } from 'framer-motion';
 
 export default function LocationGate({
   onAllow,
@@ -27,58 +28,76 @@ export default function LocationGate({
   };
 
   return (
-    <div className="mx-auto w-full max-w-md px-4 pb-28 pt-6">
-      <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
-        <div className="flex items-start gap-3">
-          <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50 text-blue-700">
-            <MapPin className="h-5 w-5" />
-          </div>
-          <div className="min-w-0">
-            <div className="text-base font-bold tracking-tight text-slate-900">Enable location</div>
-            <div className="mt-1 text-sm leading-6 text-slate-600">
-              We use your location to show the nearest providers for each service category.
+    <div className="relative min-h-screen bg-[var(--color-surface)] flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <div className="absolute top-10 left-1/2 -translate-x-1/2 w-full max-w-md h-56 pointer-events-none">
+        <div className="absolute top-0 left-10 w-56 h-56 rounded-full bg-blue-400/8 blur-[60px]" />
+        <div className="absolute bottom-10 right-10 w-48 h-48 rounded-full bg-purple-400/5 blur-[50px]" />
+      </div>
+
+      <motion.div
+        initial={{ opacity: 0, scale: 0.98 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+        className="relative mx-auto w-full max-w-md"
+      >
+        <div className="rounded-2xl bg-white border border-gray-100 p-6 shadow-sm">
+          <div className="flex flex-col items-center text-center pb-6 border-b border-gray-100">
+            <div className="relative flex h-16 w-16 items-center justify-center rounded-full bg-blue-50 text-blue-600 mb-4">
+              <span className="absolute inset-0 rounded-full bg-blue-400/20 animate-ping" />
+              <MapPin className="relative z-10 h-7 w-7" />
             </div>
+            
+            <h2 className="text-lg font-semibold text-gray-900 tracking-tight">Enable Location Services</h2>
+            <p className="mt-2 text-[13px] text-gray-500 max-w-xs leading-relaxed">
+              We require access to locate the nearest emergency responders in real time.
+            </p>
+          </div>
+
+          <div className="mt-6 space-y-4">
+            <div className="rounded-xl bg-gray-50 p-4 flex items-start gap-3">
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600">
+                <ShieldCheck className="h-4 w-4" />
+              </div>
+              <div>
+                <h3 className="text-[13px] font-semibold text-gray-900">Your Privacy is Protected</h3>
+                <p className="mt-1 text-[12px] leading-relaxed text-gray-500">
+                  Your coordinates remain on-device and are shared only when initiating an SOS support ticket.
+                </p>
+              </div>
+            </div>
+
+            {error && (
+              <div className="rounded-xl bg-red-50 border border-red-100 px-4 py-3 text-[13px] font-medium text-red-700">
+                {error}
+              </div>
+            )}
+
+            <button
+              disabled={busy}
+              onClick={request}
+              className="btn-primary w-full"
+            >
+              <Crosshair className="h-4 w-4" /> 
+              <span>{busy ? 'Detecting Location...' : 'Allow GPS Access'}</span>
+            </button>
+
+            <button
+              type="button"
+              className="btn-secondary w-full"
+              onClick={() => {
+                onAllow({ lat: 25.2048, lng: 55.2708, accuracy: 1200 });
+                nav('/home');
+              }}
+            >
+              Use Approximate Location (Dubai Core)
+            </button>
           </div>
         </div>
 
-        <div className="mt-4 rounded-3xl bg-slate-50 p-4">
-          <div className="flex items-center gap-2 text-sm font-semibold text-slate-900">
-            <ShieldCheck className="h-4 w-4 text-emerald-600" /> Trust & privacy
-          </div>
-          <div className="mt-1 text-xs leading-5 text-slate-600">
-            Your location stays on your device. We only include it if you request SOS support.
-          </div>
-        </div>
-
-        {error ? (
-          <div className="mt-4 rounded-2xl border border-orange-200 bg-orange-50 px-3 py-2 text-xs text-orange-800">
-            {error}
-          </div>
-        ) : null}
-
-        <button
-          disabled={busy}
-          onClick={request}
-          className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition enabled:hover:bg-blue-700 enabled:active:bg-blue-800 disabled:opacity-60"
-        >
-          <Crosshair className="h-5 w-5" /> {busy ? 'Requesting…' : 'Allow location'}
-        </button>
-
-        <button
-          type="button"
-          className="mt-3 inline-flex w-full items-center justify-center rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-800 shadow-sm hover:bg-slate-50 active:bg-slate-100"
-          onClick={() => {
-            onAllow({ lat: 25.2048, lng: 55.2708, accuracy: 1200 });
-            nav('/home');
-          }}
-        >
-          Use approximate location
-        </button>
-      </div>
-
-      <div className="mt-4 text-center text-xs text-slate-500">
-        Tip: On desktop browsers, you may need to allow location in site settings.
-      </div>
+        <p className="mt-6 text-center text-[11px] text-gray-400">
+          Note: If prompts are blocked, update browser permission settings manually.
+        </p>
+      </motion.div>
     </div>
   );
 }

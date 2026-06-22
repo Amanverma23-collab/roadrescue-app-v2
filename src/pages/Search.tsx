@@ -4,7 +4,8 @@ import type { Provider, Service } from '../lib/api';
 import { fetchProviders, fetchServices } from '../lib/api';
 import { fmtDistanceKm, haversineKm } from '../lib/geo';
 import ProviderCard from '../components/ProviderCard';
-import { Search as SearchIcon, SlidersHorizontal } from 'lucide-react';
+import { Search as SearchIcon, SlidersHorizontal, X } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 export default function Search({
   location,
@@ -48,35 +49,65 @@ export default function Search({
     return list;
   }, [providers, q, serviceSlug, location]);
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: { staggerChildren: 0.04 }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 10 },
+    show: { opacity: 1, y: 0, transition: { type: 'spring' as const, stiffness: 300, damping: 24 } }
+  };
+
   return (
-    <div className="min-h-screen bg-slate-50 pb-28">
-      <TopBar title="Search" backTo="/home" />
+    <div className="min-h-screen bg-[var(--color-surface)] pb-24">
+      <TopBar title="Search Directory" backTo="/home" />
 
       <div className="mx-auto w-full max-w-md px-4 pt-4">
-        <div className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm">
-          <div className="text-sm font-bold text-slate-900">Find providers</div>
-          <div className="mt-1 text-xs text-slate-500">Search across all categories. Results sort by nearest.</div>
+        <motion.div
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+          className="rounded-2xl bg-white border border-gray-100 p-5 shadow-sm"
+        >
+          <h2 className="text-[15px] font-semibold text-gray-900">Search Rescue Network</h2>
+          <p className="mt-1 text-[12px] text-gray-500">
+            Find immediate roadside assistance sorted by proximity.
+          </p>
 
-          <div className="mt-4 flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-3 py-3 focus-within:border-blue-400">
-            <SearchIcon className="h-5 w-5 text-slate-400" />
+          <div className="mt-4 flex items-center gap-2.5 rounded-xl bg-gray-50 border border-gray-200 px-3.5 py-3 focus-within:border-[var(--color-primary)] focus-within:ring-2 focus-within:ring-[var(--color-primary)]/10 transition-all">
+            <SearchIcon className="h-4 w-4 text-gray-400" />
             <input
               value={q}
               onChange={(e) => setQ(e.target.value)}
-              placeholder="Search name or city"
-              className="w-full bg-transparent text-sm font-semibold text-slate-900 outline-none placeholder:font-medium placeholder:text-slate-400"
+              placeholder="Enter provider name, city..."
+              className="w-full bg-transparent text-[13px] font-medium text-gray-900 outline-none placeholder:text-gray-400"
             />
+            {q && (
+              <button
+                onClick={() => setQ('')}
+                className="rounded-full p-1 hover:bg-gray-200 transition cursor-pointer"
+              >
+                <X className="h-3.5 w-3.5 text-gray-400" />
+              </button>
+            )}
           </div>
 
-          <div className="mt-3 flex items-center gap-2">
-            <div className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-800 shadow-sm">
-              <SlidersHorizontal className="h-4 w-4" /> Category
+          <div className="mt-3.5 flex items-center gap-3">
+            <div className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-gray-900 px-3 py-2 text-[11px] font-medium text-white">
+              <SlidersHorizontal className="h-3.5 w-3.5" /> 
+              <span>Category</span>
             </div>
+            
             <select
               value={serviceSlug}
               onChange={(e) => setServiceSlug(e.target.value)}
-              className="w-full rounded-2xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-800 shadow-sm outline-none"
+              className="w-full rounded-xl input-field cursor-pointer hover:bg-gray-50 transition-colors"
             >
-              <option value="">All services</option>
+              <option value="">All Services</option>
               {services.map((s) => (
                 <option key={s.id} value={s.slug}>
                   {s.name}
@@ -84,25 +115,53 @@ export default function Search({
               ))}
             </select>
           </div>
-        </div>
+        </motion.div>
+
+        {!loading && (
+          <div className="mt-4 flex items-center justify-between">
+            <p className="text-[11px] font-medium text-gray-400 uppercase tracking-wider">
+              {computed.length} provider{computed.length !== 1 ? 's' : ''} found
+            </p>
+            {serviceSlug && (
+              <button
+                onClick={() => setServiceSlug('')}
+                className="text-[12px] font-medium text-[var(--color-primary)] hover:underline transition cursor-pointer"
+              >
+                Clear filter
+              </button>
+            )}
+          </div>
+        )}
 
         {loading ? (
           <div className="mt-4 grid gap-3">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="h-[156px] animate-pulse rounded-3xl border border-slate-200 bg-white" />
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="h-32 skeleton rounded-2xl bg-white border border-gray-100" />
             ))}
           </div>
         ) : (
-          <div className="mt-4 grid gap-3">
-            {computed.map(({ p, km }) => (
-              <ProviderCard key={p.id} provider={p} distanceLabel={fmtDistanceKm(km)} />
-            ))}
-            {!computed.length ? (
-              <div className="rounded-3xl border border-slate-200 bg-white p-6 text-center text-sm text-slate-600 shadow-sm">
-                No results.
+          <motion.div
+            variants={containerVariants}
+            initial="hidden"
+            animate="show"
+            className="mt-4 grid gap-3"
+          >
+            {computed.length ? (
+              computed.map(({ p, km }) => (
+                <motion.div key={p.id} variants={itemVariants}>
+                  <ProviderCard provider={p} distanceLabel={fmtDistanceKm(km)} />
+                </motion.div>
+              ))
+            ) : (
+              <div className="rounded-2xl bg-white border border-gray-100 p-8 text-center">
+                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-gray-100 mb-3">
+                  <SearchIcon className="h-5 w-5 text-gray-400" />
+                </div>
+                <p className="text-[14px] font-medium text-gray-600">No matching providers found</p>
+                <p className="mt-1 text-[12px] text-gray-400">Try another search query or filter</p>
               </div>
-            ) : null}
-          </div>
+            )}
+          </motion.div>
         )}
       </div>
     </div>

@@ -1,237 +1,247 @@
-import { useState } from "react";
-import { Store, MapPin, Camera, Plus } from "lucide-react";
+import React, { useState } from "react";
+import { Store, MapPin, Camera, Plus, Trash2, ArrowRight, UploadCloud, Clock, Tag } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function ProviderShopRegister() {
-const nav=useNavigate();
-
-const [shopPhoto,setShopPhoto]=useState('');
-const [services,setServices]=useState([
- {name:'',price:''}
-]);
-
-const addService=()=>{
- setServices([
-   ...services,
-   {name:'',price:''}
- ])
-}
-
-return(
-
-<div className="mx-auto w-full max-w-md min-h-screen bg-slate-50 px-4 py-5 pb-10">
-
-<div className="mb-6">
-<div className="text-sm font-semibold">
-Step 2 / 2
-</div>
-
-<div className="mt-2 h-3 rounded-full bg-slate-200">
-<div className="h-full w-full rounded-full bg-blue-600"/>
-</div>
-</div>
-
-
-<div className="rounded-3xl bg-white p-5 shadow-sm">
-
-<h1 className="text-2xl font-bold">
-Register Your Shop
-</h1>
-
-<p className="mt-1 text-sm text-slate-500">
-Complete shop details
-</p>
-
-
-<div className="mt-6">
-<label className="text-sm font-semibold">
-Shop Name *
-</label>
-
-<div className="mt-2 flex items-center gap-2 rounded-2xl border p-3">
-<Store size={18}/>
-<input
-className="w-full outline-none"
-placeholder="Sharma Auto Care"
-/>
-</div>
-</div>
-
-
-<div className="mt-5">
-<div className="text-sm font-semibold">
-Shop Front Photo *
-</div>
-
-<label className="mt-2 flex h-28 cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed">
-
-{shopPhoto ? (
-<>
-<div>✅</div>
-
-<div className="font-semibold">
-{shopPhoto}
-</div>
-
-<div className="text-xs text-green-600">
-Photo uploaded
-</div>
-</>
-):(
-<>Upload Shop Photo</>
-)}
-
-<input
-hidden
-type="file"
-accept="image/*"
-onChange={(e)=>{
- const file=e.target.files?.[0];
-
- if(file){
-   setShopPhoto(file.name)
- }
-}}
-/>
-
-</label>
-</div>
-
-
-<div className="mt-5">
-<label className="text-sm font-semibold">
-GST (optional)
-</label>
-
-<input
-className="mt-2 w-full rounded-2xl border p-3 outline-none"
-placeholder="GST number"
-/>
-</div>
-
-
-<div className="mt-5">
-<label className="text-sm font-semibold">
-Service Category *
-</label>
-
-<select className="mt-2 w-full rounded-2xl border p-3">
-
-<option>Car Mechanic</option>
-<option>Bike Mechanic</option>
-<option>Towing</option>
-<option>Puncture</option>
-
-</select>
-</div>
-
-
-<div className="mt-5">
-<label className="text-sm font-semibold">
-Shop Address *
-</label>
-
-<div className="mt-2 flex items-center gap-2 rounded-2xl border p-3">
-<MapPin size={18}/>
-<input
-className="w-full outline-none"
-placeholder="Enter address"
-/>
-</div>
-</div>
-
-
-<div className="mt-5">
-<label className="text-sm font-semibold">
-Google Map Pin *
-</label>
-
-<div className="mt-2 rounded-2xl border p-4 text-center">
-📍 Select map location
-</div>
-</div>
-
-
-<div className="mt-5 flex gap-3">
-
-<div className="flex-1">
-<label>Open</label>
-
-<input
-type="time"
-className="mt-2 w-full rounded-2xl border p-3"
-/>
-</div>
-
-<div className="flex-1">
-<label>Close</label>
-
-<input
-type="time"
-className="mt-2 w-full rounded-2xl border p-3"
-/>
-</div>
-
-</div>
-
-
-
-<div className="mt-6">
-
-<div className="flex items-center justify-between">
-
-<div className="font-semibold">
-Services & Products
-</div>
-
-<button
-onClick={addService}
-className="cursor-pointer rounded-xl bg-blue-600 p-2 text-white"
->
-
-<Plus size={18}/>
-
-</button>
-
-</div>
-
-
-{services.map((s,index)=>(
-
-<div
-key={index}
-className="mt-3 rounded-2xl border p-3"
->
-
-<input
-placeholder="Service name"
-className="w-full outline-none"
-/>
-
-<input
-placeholder="Price optional"
-className="mt-3 w-full outline-none"
-/>
-
-</div>
-
-))}
-
-</div>
-
-
-
-<button
-onClick={()=>nav('/verification-pending')}
-className="mt-8 w-full cursor-pointer rounded-2xl bg-blue-600 p-4 font-semibold text-white"
->
-Save & Submit
-</button>
-
-
-</div>
-</div>
-
-)
-
+  const nav = useNavigate();
+  const [shopPhoto, setShopPhoto] = useState('');
+  const [shopName, setShopName] = useState('');
+  const [address, setAddress] = useState('');
+  const [gst, setGst] = useState('');
+  const [category, setCategory] = useState('Car Mechanic');
+  const [openTime, setOpenTime] = useState('09:00');
+  const [closeTime, setCloseTime] = useState('21:00');
+  const [services, setServices] = useState([
+    { name: '', price: '' }
+  ]);
+
+  const addService = () => {
+    setServices([...services, { name: '', price: '' }]);
+  };
+
+  const removeService = (index: number) => {
+    if (services.length <= 1) return;
+    setServices(services.filter((_, idx) => idx !== index));
+  };
+
+  const updateService = (index: number, key: 'name' | 'price', value: string) => {
+    const list = [...services];
+    list[index][key] = value;
+    setServices(list);
+  };
+
+  return (
+    <div className="min-h-screen bg-[var(--color-surface)] px-4 py-6 pb-20">
+      <div className="mx-auto w-full max-w-md">
+        
+        <motion.div
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-5"
+        >
+          <div className="flex justify-between items-center text-[11px] font-medium text-gray-500 uppercase tracking-wider">
+            <span>Step 2 of 2</span>
+            <span className="text-[var(--color-primary)]">Verification Pending</span>
+          </div>
+          <div className="mt-2 h-2 overflow-hidden rounded-full bg-gray-200">
+            <div className="h-full w-full rounded-full bg-[var(--color-primary)] transition-all duration-500"></div>
+          </div>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+          className="rounded-2xl bg-white border border-gray-100 p-6 shadow-sm"
+        >
+          <div>
+            <h1 className="text-lg font-semibold text-gray-900">Register Your Shop</h1>
+            <p className="mt-1 text-[12px] text-gray-500 leading-relaxed">
+              Define your business hours, service list, and storefront details.
+            </p>
+          </div>
+
+          <div className="mt-6 space-y-4">
+            <div>
+              <label className="text-[11px] font-medium text-gray-600 uppercase tracking-wider">Shop Name *</label>
+              <div className="mt-1.5 flex items-center gap-2.5 rounded-xl bg-gray-50 border border-gray-200 px-3 py-3 focus-within:border-[var(--color-primary)] focus-within:ring-2 focus-within:ring-[var(--color-primary)]/10 transition-all">
+                <Store size={18} className="text-gray-400" />
+                <input
+                  required
+                  value={shopName}
+                  onChange={(e) => setShopName(e.target.value)}
+                  className="w-full bg-transparent text-[13px] font-medium text-gray-900 outline-none placeholder:text-gray-400"
+                  placeholder="e.g. Sharma Auto Care"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="text-[11px] font-medium text-gray-600 uppercase tracking-wider">Shop Front Photo *</label>
+              <label className="mt-2 flex h-28 cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 hover:bg-gray-100 hover:border-gray-300 transition-all">
+                {shopPhoto ? (
+                  <div className="text-center p-3">
+                    <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 mb-1">✓</span>
+                    <p className="text-[12px] font-medium text-gray-900 truncate max-w-xs">{shopPhoto}</p>
+                    <p className="text-[10px] text-emerald-600 font-medium mt-0.5">Photo added successfully</p>
+                  </div>
+                ) : (
+                  <div className="text-center p-3 flex flex-col items-center">
+                    <UploadCloud size={24} className="text-gray-400 mb-1" />
+                    <span className="text-[12px] font-medium text-gray-700">Upload Shop Photo</span>
+                    <span className="text-[10px] text-gray-400 mt-0.5">JPEG, PNG up to 5MB</span>
+                  </div>
+                )}
+                <input
+                  hidden
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) setShopPhoto(file.name);
+                  }}
+                />
+              </label>
+            </div>
+
+            <div>
+              <label className="text-[11px] font-medium text-gray-600 uppercase tracking-wider">GST Number (Optional)</label>
+              <input
+                value={gst}
+                onChange={(e) => setGst(e.target.value)}
+                className="mt-1.5 w-full rounded-xl input-field"
+                placeholder="Enter 15-digit GSTIN details"
+              />
+            </div>
+
+            <div>
+              <label className="text-[11px] font-medium text-gray-600 uppercase tracking-wider">Service Category *</label>
+              <select
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                className="mt-2 w-full rounded-xl input-field cursor-pointer hover:bg-gray-50 transition-colors"
+              >
+                <option value="Car Mechanic">Car Mechanic</option>
+                <option value="Bike Mechanic">Bike Mechanic</option>
+                <option value="Towing">Towing Service</option>
+                <option value="Puncture">Puncture Repair</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="text-[11px] font-medium text-gray-600 uppercase tracking-wider">Shop Address *</label>
+              <div className="mt-1.5 flex items-center gap-2.5 rounded-xl bg-gray-50 border border-gray-200 px-3 py-3 focus-within:border-[var(--color-primary)] focus-within:ring-2 focus-within:ring-[var(--color-primary)]/10 transition-all">
+                <MapPin size={18} className="text-gray-400" />
+                <input
+                  required
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
+                  className="w-full bg-transparent text-[13px] font-medium text-gray-900 outline-none placeholder:text-gray-400"
+                  placeholder="Enter shop address"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="text-[11px] font-medium text-gray-600 uppercase tracking-wider">Google Map Pin Location *</label>
+              <div className="mt-2 rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 hover:bg-gray-100 p-4 text-center cursor-pointer transition-colors">
+                <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-blue-50 text-blue-600 mb-1">📍</span>
+                <p className="text-[12px] font-medium text-gray-800">Pin GPS Coordinates</p>
+                <p className="text-[10px] text-gray-400 mt-0.5">Locks shop coordinates for nearby user scans</p>
+              </div>
+            </div>
+
+            <div className="flex gap-4">
+              <div className="flex-1">
+                <label className="text-[11px] font-medium text-gray-600 uppercase tracking-wider flex items-center gap-1">
+                  <Clock size={12} className="text-gray-400" /> Open Time
+                </label>
+                <input
+                  type="time"
+                  value={openTime}
+                  onChange={(e) => setOpenTime(e.target.value)}
+                  className="mt-2 w-full rounded-xl input-field cursor-pointer"
+                />
+              </div>
+              <div className="flex-1">
+                <label className="text-[11px] font-medium text-gray-600 uppercase tracking-wider flex items-center gap-1">
+                  <Clock size={12} className="text-gray-400" /> Close Time
+                </label>
+                <input
+                  type="time"
+                  value={closeTime}
+                  onChange={(e) => setCloseTime(e.target.value)}
+                  className="mt-2 w-full rounded-xl input-field cursor-pointer"
+                />
+              </div>
+            </div>
+
+            <div className="border-t border-gray-100 pt-4">
+              <div className="flex items-center justify-between">
+                <label className="text-[11px] font-medium text-gray-600 uppercase tracking-wider flex items-center gap-1">
+                  <Tag size={12} className="text-gray-400" /> Services & Products
+                </label>
+                <button
+                  type="button"
+                  onClick={addService}
+                  className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--color-primary)] text-white hover:bg-[#2d2d4a] transition active:scale-90 cursor-pointer"
+                >
+                  <Plus size={16} />
+                </button>
+              </div>
+
+              <div className="mt-3.5 space-y-2.5">
+                <AnimatePresence initial={false}>
+                  {services.map((s, index) => (
+                    <motion.div
+                      key={index}
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="flex items-center gap-2"
+                    >
+                      <div className="flex-1 rounded-xl bg-gray-50 border border-gray-200 p-2.5 grid grid-cols-2 gap-2">
+                        <input
+                          placeholder="Service description"
+                          value={s.name}
+                          onChange={(e) => updateService(index, 'name', e.target.value)}
+                          className="bg-transparent text-[12px] font-medium text-gray-900 outline-none border-b border-transparent focus:border-[var(--color-primary)] placeholder:text-gray-400 transition-colors"
+                        />
+                        <input
+                          placeholder="Price (INR)"
+                          value={s.price}
+                          onChange={(e) => updateService(index, 'price', e.target.value)}
+                          className="bg-transparent text-[12px] font-medium text-gray-900 outline-none border-b border-transparent focus:border-[var(--color-primary)] placeholder:text-gray-400 text-right transition-colors"
+                        />
+                      </div>
+                      {services.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => removeService(index)}
+                          className="p-2 text-gray-400 hover:text-red-500 transition cursor-pointer"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      )}
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
+              </div>
+            </div>
+          </div>
+
+          <button
+            onClick={() => nav('/verification-pending')}
+            disabled={!shopName || !shopPhoto || !address}
+            className="mt-8 btn-primary w-full"
+          >
+            <span>Register & Submit</span>
+            <ArrowRight className="h-4 w-4" />
+          </button>
+        </motion.div>
+      </div>
+    </div>
+  );
 }
