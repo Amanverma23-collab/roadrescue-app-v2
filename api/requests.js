@@ -1,10 +1,22 @@
-import supabase from './_supabase.js';
+import supabase, { isSupabaseConfigured } from './_supabase.js';
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   if (req.method === 'OPTIONS') return res.status(204).end();
+
+  if (!isSupabaseConfigured()) {
+    if (req.method === 'GET') return res.status(200).json([]);
+    if (req.method === 'POST') {
+      return res.status(201).json({ id: Date.now(), ...req.body, status: 'requested' });
+    }
+    if (req.method === 'PUT') {
+      return res.status(200).json({ id: req.body?.id, ...req.body });
+    }
+    if (req.method === 'DELETE') return res.status(200).json({ ok: true });
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
 
   try {
     if (req.method === 'GET') {
@@ -19,7 +31,6 @@ export default async function handler(req, res) {
       if (status) query = query.eq('status', status);
       if (provider_id) query = query.eq('provider_id', Number(provider_id));
 
-      // role is client-side hint; no-op server-side, but kept for forward-compat.
       if (role && !['customer', 'provider'].includes(role)) {
         return res.status(400).json({ error: 'Invalid role' });
       }
