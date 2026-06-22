@@ -21,6 +21,7 @@ import ProviderDashboard from "./pages/ProviderDashboard";
 import EditProfile from './pages/EditProfile';
 import Settings from './pages/Settings';
 import HelpSupport from './pages/HelpSupport';
+import VerificationPending from './pages/VerificationPending';
 import type { Service } from './lib/api';
 import { fetchServices } from './lib/api';
 
@@ -153,133 +154,7 @@ const showNav = useMemo(() => {
  path="/provider-shop-register"
  element={<ProviderShopRegister/>}
 />
-<Route
- path="/verification-pending"
- element={
-  <div className="mx-auto w-full max-w-md min-h-screen bg-[var(--color-surface)] px-4 py-6">
-
-   <h1 className="text-lg font-semibold text-gray-900">
-    Verification Pending
-   </h1>
-
-   <div className="mt-6 rounded-2xl bg-white border border-gray-100 p-5 text-center shadow-sm">
-
-    <div className="flex justify-center">
-
-     <div className="relative">
-
-      <div className="h-24 w-24 rounded-full bg-amber-100"/>
-
-      <div className="absolute inset-0 flex items-center justify-center text-5xl">
-       🟡
-      </div>
-
-     </div>
-
-    </div>
-
-    <div className="mx-auto w-full max-w-md">
-
-<div className="text-[11px] font-medium text-gray-500">
-Step 3 / 4
-</div>
-
-<div className="mt-2 h-2 rounded-full bg-gray-200 overflow-hidden">
-<div className="h-full w-3/4 rounded-full bg-[var(--color-primary)]"/>
-</div>
-
-<div className="mt-8 rounded-2xl bg-white border border-gray-100 p-6 shadow-sm">
-
-<div className="flex justify-center">
-
-<div className="relative">
-
-<div className="h-24 w-24 animate-pulse rounded-full bg-amber-200"/>
-
-<div className="absolute inset-0 flex items-center justify-center text-5xl">
-🛡️
-</div>
-
-</div>
-
-</div>
-
-<h1 className="mt-6 text-center text-lg font-semibold">
-Verification in Progress
-</h1>
-
-<p className="mt-2 text-center text-[13px] text-gray-500">
-We're reviewing your profile and shop documents
-</p>
-
-<div className="mt-6 rounded-xl bg-gray-50 p-4">
-
-<div className="flex justify-between">
-<span className="text-[13px] text-gray-700">Profile Completed</span>
-</div>
-
-<div className="mt-3 text-[13px] text-gray-700">
-Shop Registered
-</div>
-
-<div className="mt-3 font-medium text-amber-600 text-[13px]">
-Documents Under Review
-</div>
-
-<div className="mt-3 text-[13px] text-gray-400">
-Waiting for approval
-</div>
-
-<div className="mt-3 text-[13px] text-gray-400">
-Subscription locked
-</div>
-
-</div>
-
-<div className="mt-6 rounded-xl border border-gray-200 p-4">
-
-<div className="text-[12px] text-gray-500">
-Last update
-</div>
-
-<div className="text-[13px] font-medium text-gray-900 mt-1">
-Documents uploaded successfully
-</div>
-
-<div className="text-[11px] text-gray-400 mt-1">
-2 min ago
-</div>
-
-</div>
-
-
-<button className="mt-6 btn-primary w-full">
-Notify me when approved
-</button>
-<button
-onClick={()=>nav('/provider-approved')}
-className="mt-3 btn-secondary w-full"
->
-Demo Admin Approve
-</button>
-
-<div className="mt-4 text-center text-[12px] text-gray-400">
-After approval you'll get
-48 hours to activate subscription
-</div>
-
-</div>
-</div>
-
-    <p className="mt-2 text-[12px] text-gray-400 text-center">
-      Verification usually takes 2–24 hours
-    </p>
-
-   </div>
-
-  </div>
- }
-/>
+<Route path="/verification-pending" element={<VerificationPending />} />
 <Route
 path="/provider-approved"
 element={<ProviderApproved/>}

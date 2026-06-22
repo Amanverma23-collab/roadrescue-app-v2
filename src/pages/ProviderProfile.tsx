@@ -3,16 +3,37 @@ import { useNavigate } from "react-router-dom";
 import { User, Mail, MapPin, Camera, ShieldCheck, ArrowRight, UploadCloud } from "lucide-react";
 import { motion } from "framer-motion";
 
+const LS_OWNER_NAME = 'rr_provider_owner_name';
+const LS_OWNER_EMAIL = 'rr_provider_owner_email';
+const LS_OWNER_ADDRESS = 'rr_provider_owner_address';
+const LS_OWNER_PHOTO = 'rr_provider_owner_photo';
+const LS_DOC_TYPE = 'rr_provider_doc_type';
+const LS_DOC_NUMBER = 'rr_provider_doc_number';
+const LS_DOC_FRONT = 'rr_provider_doc_front';
+const LS_DOC_BACK = 'rr_provider_doc_back';
+
 export default function ProviderProfile() {
-  const [docType, setDocType] = useState("aadhaar");
-  const [profileName, setProfileName] = useState('');
-  const [frontName, setFrontName] = useState('');
-  const [backName, setBackName] = useState('');
-  const [ownerName, setOwnerName] = useState('');
-  const [email, setEmail] = useState('');
-  const [address, setAddress] = useState('');
-  const [docNumber, setDocNumber] = useState('');
+  const [docType, setDocType] = useState(() => localStorage.getItem(LS_DOC_TYPE) || "aadhaar");
+  const [ownerName, setOwnerName] = useState(() => localStorage.getItem(LS_OWNER_NAME) || '');
+  const [email, setEmail] = useState(() => localStorage.getItem(LS_OWNER_EMAIL) || '');
+  const [address, setAddress] = useState(() => localStorage.getItem(LS_OWNER_ADDRESS) || '');
+  const [profileName, setProfileName] = useState(() => localStorage.getItem(LS_OWNER_PHOTO) || '');
+  const [docNumber, setDocNumber] = useState(() => localStorage.getItem(LS_DOC_NUMBER) || '');
+  const [frontName, setFrontName] = useState(() => localStorage.getItem(LS_DOC_FRONT) || '');
+  const [backName, setBackName] = useState(() => localStorage.getItem(LS_DOC_BACK) || '');
   const nav = useNavigate();
+
+  const saveAndNext = () => {
+    localStorage.setItem(LS_OWNER_NAME, ownerName);
+    localStorage.setItem(LS_OWNER_EMAIL, email);
+    localStorage.setItem(LS_OWNER_ADDRESS, address);
+    if (profileName) localStorage.setItem(LS_OWNER_PHOTO, profileName);
+    localStorage.setItem(LS_DOC_TYPE, docType);
+    localStorage.setItem(LS_DOC_NUMBER, docNumber);
+    if (frontName) localStorage.setItem(LS_DOC_FRONT, frontName);
+    if (backName) localStorage.setItem(LS_DOC_BACK, backName);
+    nav('/provider-shop-register');
+  };
 
   return (
     <div className="min-h-screen bg-[var(--color-surface)] px-4 py-6 pb-32">
@@ -110,7 +131,10 @@ export default function ProviderProfile() {
                   accept="image/*"
                   onChange={(e) => {
                     const file = e.target.files?.[0];
-                    if (file) setProfileName(file.name);
+                    if (file) {
+                      setProfileName(file.name);
+                      localStorage.setItem(LS_OWNER_PHOTO, file.name);
+                    }
                   }}
                 />
               </label>
@@ -121,7 +145,7 @@ export default function ProviderProfile() {
               <div className="mt-2 flex gap-3">
                 <button
                   type="button"
-                  onClick={() => setDocType("aadhaar")}
+                  onClick={() => { setDocType("aadhaar"); localStorage.setItem(LS_DOC_TYPE, "aadhaar"); }}
                   className={`flex-1 rounded-xl py-2.5 text-[12px] font-semibold border-2 cursor-pointer transition-all ${
                     docType === "aadhaar"
                       ? "bg-[var(--color-primary)] border-[var(--color-primary)] text-white"
@@ -132,7 +156,7 @@ export default function ProviderProfile() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => setDocType("pan")}
+                  onClick={() => { setDocType("pan"); localStorage.setItem(LS_DOC_TYPE, "pan"); }}
                   className={`flex-1 rounded-xl py-2.5 text-[12px] font-semibold border-2 cursor-pointer transition-all ${
                     docType === "pan"
                       ? "bg-[var(--color-primary)] border-[var(--color-primary)] text-white"
@@ -178,7 +202,10 @@ export default function ProviderProfile() {
                   accept="image/*"
                   onChange={(e) => {
                     const file = e.target.files?.[0];
-                    if (file) setFrontName(file.name);
+                    if (file) {
+                      setFrontName(file.name);
+                      localStorage.setItem(LS_DOC_FRONT, file.name);
+                    }
                   }}
                 />
               </label>
@@ -205,7 +232,10 @@ export default function ProviderProfile() {
                   accept="image/*"
                   onChange={(e) => {
                     const file = e.target.files?.[0];
-                    if (file) setBackName(file.name);
+                    if (file) {
+                      setBackName(file.name);
+                      localStorage.setItem(LS_DOC_BACK, file.name);
+                    }
                   }}
                 />
               </label>
@@ -213,7 +243,7 @@ export default function ProviderProfile() {
           </div>
 
           <button
-            onClick={() => nav('/provider-shop-register')}
+            onClick={saveAndNext}
             disabled={!ownerName || !address || !profileName || !docNumber || !frontName || !backName}
             className="mt-8 btn-primary w-full"
           >

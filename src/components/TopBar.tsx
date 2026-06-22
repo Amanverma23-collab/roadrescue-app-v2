@@ -1,8 +1,9 @@
 import { Menu } from 'lucide-react';
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Bell, ChevronLeft, LogOut, Settings, User, Shield, HelpCircle, X } from 'lucide-react';
+import { ChevronLeft, LogOut, Settings, User, Shield, HelpCircle, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import NotificationPanel from './NotificationPanel';
 
 export default function TopBar({ title, backTo, onLogout }: { title: string; backTo?: string; onLogout?: () => void }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -35,14 +36,7 @@ export default function TopBar({ title, backTo, onLogout }: { title: string; bac
               <p className="truncate text-[11px] text-gray-500">Fast rescue, verified professionals</p>
             </div>
           </div>
-          <button
-            className="relative inline-flex h-9 w-9 items-center justify-center rounded-lg bg-gray-50 text-gray-600 transition-colors hover:bg-gray-100 active:scale-95 cursor-pointer"
-            aria-label="Alerts"
-            onClick={() => alert('RoadRescue notifications are up-to-date.')}
-          >
-            <Bell className="h-5 w-5" />
-            <span className="absolute top-2 right-2 flex h-2 w-2 rounded-full bg-[var(--color-accent)]" />
-          </button>
+          <NotificationPanel />
         </div>
       </header>
 
