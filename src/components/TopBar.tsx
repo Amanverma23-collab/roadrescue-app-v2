@@ -85,7 +85,8 @@ export default function TopBar({ title, backTo, onLogout }: { title: string; bac
 
               <div className="flex-1 overflow-y-auto p-4">
                 <div className="space-y-1">
-                  <button
+                  <Link
+                    to="/profile"
                     onClick={() => setSidebarOpen(false)}
                     className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer group"
                   >
@@ -93,9 +94,10 @@ export default function TopBar({ title, backTo, onLogout }: { title: string; bac
                       <User className="h-4 w-4" />
                     </div>
                     <span>Edit Profile</span>
-                  </button>
+                  </Link>
 
-                  <button
+                  <Link
+                    to="/settings"
                     onClick={() => setSidebarOpen(false)}
                     className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer group"
                   >
@@ -103,9 +105,10 @@ export default function TopBar({ title, backTo, onLogout }: { title: string; bac
                       <Settings className="h-4 w-4" />
                     </div>
                     <span>Settings</span>
-                  </button>
+                  </Link>
 
-                  <button
+                  <Link
+                    to="/help"
                     onClick={() => setSidebarOpen(false)}
                     className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer group"
                   >
@@ -113,7 +116,7 @@ export default function TopBar({ title, backTo, onLogout }: { title: string; bac
                       <HelpCircle className="h-4 w-4" />
                     </div>
                     <span>Help & Support</span>
-                  </button>
+                  </Link>
                 </div>
 
                 <div className="my-4 border-t border-gray-100" />

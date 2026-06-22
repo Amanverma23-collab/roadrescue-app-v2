@@ -18,6 +18,9 @@ import RequestFlow from './pages/RequestFlow';
 import Tracking from './pages/Tracking';
 import SubscriptionPayment from './pages/SubscriptionPayment';
 import ProviderDashboard from "./pages/ProviderDashboard";
+import EditProfile from './pages/EditProfile';
+import Settings from './pages/Settings';
+import HelpSupport from './pages/HelpSupport';
 import type { Service } from './lib/api';
 import { fetchServices } from './lib/api';
 
@@ -279,7 +282,10 @@ element={<ProviderApproved/>}
 path="/provider-dashboard"
 element={<ProviderDashboard/>}
 />
-<Route path="*" element={<Navigate to="/home" replace />} />
+        <Route path="/profile" element={<EditProfile />} />
+        <Route path="/settings" element={<Settings />} />
+        <Route path="/help" element={<HelpSupport />} />
+        <Route path="*" element={<Navigate to="/home" replace />} />
       </Routes>
 {showNav &&
 loc.pathname !== "/provider-dashboard" &&
