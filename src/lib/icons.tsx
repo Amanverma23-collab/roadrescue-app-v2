@@ -12,6 +12,14 @@ import {
   BatteryCharging,
   Car,
   Truck,
+  CircleDot,
+  Lock,
+  Zap,
+  Droplets,
+  UtensilsCrossed,
+  Bike,
+  LifeBuoy,
+  Hammer,
 } from 'lucide-react';
 
 export function IconByName({ name, className }: { name: string; className?: string }) {
@@ -41,6 +49,22 @@ export function IconByName({ name, className }: { name: string; className?: stri
       return <Car {...props} />;
     case 'truck':
       return <Truck {...props} />;
+    case 'circle-dot':
+      return <CircleDot {...props} />;
+    case 'lock':
+      return <Lock {...props} />;
+    case 'zap':
+      return <Zap {...props} />;
+    case 'droplets':
+      return <Droplets {...props} />;
+    case 'utensils':
+      return <UtensilsCrossed {...props} />;
+    case 'bike':
+      return <Bike {...props} />;
+    case 'life-buoy':
+      return <LifeBuoy {...props} />;
+    case 'hammer':
+      return <Hammer {...props} />;
     default:
       return <Sparkles {...props} />;
   }
